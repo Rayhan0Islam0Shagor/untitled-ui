@@ -5,16 +5,24 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import Image from 'next/image';
 import Button from './button';
+import { navMenu } from '@/constant/nav-menu';
+import { ChevronDown } from 'lucide-react';
+import MobileNav from './MobileNav';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setIsMobileMenuOpen((pre) => !pre);
   };
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  const toggleSubmenu = (name: string) => {
+    setOpenMenu(openMenu === name ? null : name);
   };
 
   return (
@@ -38,30 +46,61 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:block">
               <ul className="flex gap-6 lg:gap-10">
-                {/* <li>
-                  <Link
-                    href="/about"
-                    className="font-semibold text-[#8d493a] hover:text-[#6d3a2a] transition-colors duration-300 text-sm lg:text-base"
-                  >
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/projects"
-                    className="font-semibold text-[#8d493a] hover:text-[#6d3a2a] transition-colors duration-300 text-sm lg:text-base"
-                  >
-                    Projects
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/news"
-                    className="font-semibold text-[#8d493a] hover:text-[#6d3a2a] transition-colors duration-300 text-sm lg:text-base"
-                  >
-                    News
-                  </Link>
-                </li> */}
+                {navMenu.map((navItem, index) => {
+                  const hasSubmenu =
+                    navItem?.submenu && navItem?.submenu?.length > 0;
+
+                  const isOpen = openMenu === navItem.name;
+
+                  return (
+                    <li
+                      key={index}
+                      className="relative flex items-center gap-2 cursor-pointer"
+                      onClick={() => hasSubmenu && toggleSubmenu(navItem.name)}
+                    >
+                      <Link
+                        href={navItem.href}
+                        className="font-semibold text-base leading-6"
+                      >
+                        {navItem.name}
+                      </Link>
+                      {hasSubmenu && (
+                        <ChevronDown
+                          size={18}
+                          strokeWidth={3}
+                          className={`transition-transform ${
+                            isOpen ? 'rotate-180' : ''
+                          }`}
+                        />
+                      )}
+
+                      {/* Submenu */}
+                      <AnimatePresence>
+                        {isOpen && hasSubmenu && (
+                          <motion.ul
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute left-0 top-full mt-4 w-40 bg-white text-black rounded-md shadow-lg p-2 space-y-2 z-50"
+                          >
+                            {navItem.submenu.map((sub, i) => (
+                              <li key={i}>
+                                <Link
+                                  href={sub.href}
+                                  className="block px-3 py-1 hover:bg-gray-100 rounded"
+                                  onClick={() => toggleSubmenu('')}
+                                >
+                                  {sub.name}
+                                </Link>
+                              </li>
+                            ))}
+                          </motion.ul>
+                        )}
+                      </AnimatePresence>
+                    </li>
+                  );
+                })}
               </ul>
             </nav>
           </div>
@@ -108,73 +147,10 @@ const Navbar = () => {
           </motion.button>
         </div>
 
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <>
-              {/* Backdrop */}
-              <motion.div
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                onClick={closeMobileMenu}
-              />
-
-              {/* Mobile Menu */}
-              <motion.div
-                className="absolute top-full left-2 right-2 mt-1 bg-[#ffffff] rounded-lg shadow-xl z-50 md:hidden overflow-hidden"
-                initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-              >
-                <nav className="py-4">
-                  <ul className="space-y-1">
-                    <li>
-                      <Link
-                        href="/about"
-                        className="block px-6 py-3 font-semibold text-[#8d493a] hover:bg-[#8d493a]/10 transition-colors duration-300 text-base"
-                        onClick={closeMobileMenu}
-                      >
-                        About
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/projects"
-                        className="block px-6 py-3 font-semibold text-[#8d493a] hover:bg-[#8d493a]/10 transition-colors duration-300 text-base"
-                        onClick={closeMobileMenu}
-                      >
-                        Projects
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/news"
-                        className="block px-6 py-3 font-semibold text-[#8d493a] hover:bg-[#8d493a]/10 transition-colors duration-300 text-base"
-                        onClick={closeMobileMenu}
-                      >
-                        News
-                      </Link>
-                    </li>
-                  </ul>
-
-                  {/* Mobile Contact Button */}
-                  <div className="px-6 pt-4 pb-2">
-                    <Link
-                      href="/contactus"
-                      className="block w-full text-center bg-[#8d493a] hover:bg-[#6d3a2a] text-white px-6 py-3 rounded-md font-semibold transition-all duration-300 text-base"
-                      onClick={closeMobileMenu}
-                    >
-                      Contact us
-                    </Link>
-                  </div>
-                </nav>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+        <MobileNav
+          isMobileMenuOpen={isMobileMenuOpen}
+          closeMobileMenu={closeMobileMenu}
+        />
       </Wrapper>
     </header>
   );

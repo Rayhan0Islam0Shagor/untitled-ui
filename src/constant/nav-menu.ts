@@ -6,12 +6,30 @@ export const navMenu = [
   {
     name: 'Products',
     href: '#',
-    submenu: [],
+    submenu: [
+      {
+        name: 'Product 1',
+        href: '#',
+      },
+      {
+        name: 'Product 2',
+        href: '#',
+      },
+    ],
   },
   {
     name: 'Resources',
     href: '#',
-    submenu: [],
+    submenu: [
+      {
+        name: 'Resource 1',
+        href: '#',
+      },
+      {
+        name: 'Resource 2',
+        href: '#',
+      },
+    ],
   },
   {
     name: 'Pricing',
